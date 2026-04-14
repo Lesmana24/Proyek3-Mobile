@@ -16,9 +16,9 @@ class MainPage extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Smart Plants House',
       theme: ThemeData(
-        primaryColor: const Color(0xFF4C732E),
+        primaryColor: const Color.fromARGB(255, 32, 54, 15),
         scaffoldBackgroundColor: Colors.white,
-      ),
+      ), //gen
       home: const WelcomePage(),
     );
   }

@@ -152,7 +152,7 @@ class _InputField extends StatelessWidget {
   child: Image.asset(
     image,
     width: 25,  
-    height: 25,
+    height: 26,
     fit: BoxFit.contain,
   ),
 ),
