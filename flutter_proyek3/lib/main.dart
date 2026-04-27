@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'daftar.dart';
 import 'masuk.dart';
 
-
 void main() {
   runApp(const MainPage());
 }
@@ -35,7 +34,10 @@ class WelcomePage extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 28.0,
+              vertical: 24.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -65,10 +67,7 @@ class WelcomePage extends StatelessWidget {
                     height: 340,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(26),
-                      child: Image.asset(
-                        'gambar/img1.png',
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.asset('gambar/img1.png', fit: BoxFit.cover),
                     ),
                   ),
                 ),
@@ -85,7 +84,9 @@ class WelcomePage extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const MasukPage()),
+                              MaterialPageRoute(
+                                builder: (context) => const MasukPage(),
+                              ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -95,7 +96,11 @@ class WelcomePage extends StatelessWidget {
                           ),
                           child: const Text(
                             'Masuk',
-                            style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 255, 255, 255), fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -107,18 +112,27 @@ class WelcomePage extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const DaftarPage()),
+                              MaterialPageRoute(
+                                builder: (context) => const DaftarPage(),
+                              ),
                             );
                           },
-                          
+
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: primaryGreen, width: 2),
+                            side: const BorderSide(
+                              color: primaryGreen,
+                              width: 2,
+                            ),
                             shape: const StadiumBorder(),
                             backgroundColor: Colors.white,
                           ),
                           child: const Text(
                             'Daftar',
-                            style: TextStyle(fontSize: 18, color: primaryGreen, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: primaryGreen,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),

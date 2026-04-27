@@ -24,10 +24,15 @@ class _FotoAIPageState extends State<FotoAIPage> {
     });
 
     try {
-      final XFile? picked = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+      final XFile? picked = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+      );
       if (picked == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Foto dibatalkan')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Foto dibatalkan')));
         }
       } else {
         _capturedBytes = await picked.readAsBytes();
@@ -39,13 +44,17 @@ class _FotoAIPageState extends State<FotoAIPage> {
             ),
           );
         } else if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal membaca foto')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Gagal membaca foto')));
         }
       }
     } catch (e) {
       debugPrint('Capture failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal memotret: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal memotret: $e')));
       }
     } finally {
       if (mounted) {
@@ -79,16 +88,25 @@ class _FotoAIPageState extends State<FotoAIPage> {
                 borderRadius: BorderRadius.circular(18),
                 color: Colors.grey.shade200,
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
                 ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(18),
                 child: _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : _capturedBytes != null
-                            ? Image.memory(_capturedBytes!, fit: BoxFit.cover)
-                            : const Center(child: Text('Tekan tombol kamera untuk mengambil foto', style: TextStyle(fontSize: 16))),
+                    ? const Center(child: CircularProgressIndicator())
+                    : _capturedBytes != null
+                    ? Image.memory(_capturedBytes!, fit: BoxFit.cover)
+                    : const Center(
+                        child: Text(
+                          'Tekan tombol kamera untuk mengambil foto',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
               ),
             ),
           ),
@@ -102,12 +120,24 @@ class _FotoAIPageState extends State<FotoAIPage> {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: _hoverCapture ? primaryGreen.withOpacity(0.85) : primaryGreen,
+                  color: _hoverCapture
+                      ? primaryGreen.withOpacity(0.85)
+                      : primaryGreen,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 4),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.25), blurRadius: 12, offset: const Offset(0, 4))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.camera_alt, color: Colors.white, size: 32),
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: 32,
+                ),
               ),
             ),
           ),

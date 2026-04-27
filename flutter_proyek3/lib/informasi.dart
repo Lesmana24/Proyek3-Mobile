@@ -22,10 +22,7 @@ class InformasiPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: const TextStyle(
-          fontSize: 13,
-          color: Colors.black87,
-        ),
+        style: const TextStyle(fontSize: 13, color: Colors.black87),
       ),
     );
   }
@@ -37,12 +34,7 @@ class InformasiPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text("• "),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 13),
-            ),
-          ),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
         ],
       ),
     );
@@ -87,30 +79,37 @@ class InformasiPage extends StatelessWidget {
 
                 buildSectionTitle("1. Registrasi & Login"),
                 buildContent(
-                    "Pengguna terlebih dahulu melakukan registrasi akun, kemudian login untuk dapat mengakses seluruh fitur sistem."),
+                  "Pengguna terlebih dahulu melakukan registrasi akun, kemudian login untuk dapat mengakses seluruh fitur sistem.",
+                ),
 
                 buildSectionTitle("2. Monitoring Lingkungan"),
                 buildContent(
-                    "Sistem akan menampilkan data kondisi greenhouse secara real-time, meliputi:"),
+                  "Sistem akan menampilkan data kondisi greenhouse secara real-time, meliputi:",
+                ),
                 buildBullet("Suhu udara"),
                 buildBullet("Kelembapan udara"),
                 buildContent(
-                    "Data ini diperoleh dari sensor yang terpasang di dalam greenhouse dan akan terus diperbarui secara otomatis."),
+                  "Data ini diperoleh dari sensor yang terpasang di dalam greenhouse dan akan terus diperbarui secara otomatis.",
+                ),
 
                 buildSectionTitle("3. Pengaturan Batas Ambang"),
                 buildContent(
-                    "Pengguna dapat mengatur batas suhu dan kelembapan sesuai kebutuhan tanaman. Jika kondisi lingkungan melebihi batas tersebut, sistem akan memberikan notifikasi peringatan."),
+                  "Pengguna dapat mengatur batas suhu dan kelembapan sesuai kebutuhan tanaman. Jika kondisi lingkungan melebihi batas tersebut, sistem akan memberikan notifikasi peringatan.",
+                ),
 
                 buildSectionTitle("4. Sistem Penyiraman Otomatis"),
                 buildContent("Berdasarkan data suhu dan kelembapan:"),
                 buildBullet(
-                    "Sistem akan mengaktifkan penyiraman secara otomatis jika kondisi tidak ideal"),
+                  "Sistem akan mengaktifkan penyiraman secara otomatis jika kondisi tidak ideal",
+                ),
                 buildBullet(
-                    "Penyiraman dapat disesuaikan dengan jadwal atau kondisi lingkungan"),
+                  "Penyiraman dapat disesuaikan dengan jadwal atau kondisi lingkungan",
+                ),
 
                 buildSectionTitle("5. Deteksi Kesehatan Tanaman"),
                 buildContent(
-                    "Pengguna dapat mengunggah foto tanaman melalui fitur:"),
+                  "Pengguna dapat mengunggah foto tanaman melalui fitur:",
+                ),
                 buildBullet("Ambil foto langsung"),
                 buildBullet("Upload dari galeri"),
               ],

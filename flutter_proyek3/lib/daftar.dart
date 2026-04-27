@@ -12,14 +12,8 @@ class DaftarPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                flex: 3,
-                child: Container(color: Colors.white),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(color: primaryGreen),
-              ),
+              Expanded(flex: 3, child: Container(color: Colors.white)),
+              Expanded(flex: 2, child: Container(color: primaryGreen)),
             ],
           ),
           SafeArea(
@@ -45,7 +39,12 @@ class DaftarPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.arrow_back, color: primaryGreen, size: 20, fontWeight: FontWeight.w900),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: primaryGreen,
+                        size: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -75,22 +74,30 @@ class DaftarPage extends StatelessWidget {
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF4C732E),
-                              
                             ),
                           ),
                           const SizedBox(height: 24),
-                          const _InputField(label: 'Nama', image: 'gambar/profile.png'),
+                          const _InputField(
+                            label: 'Nama',
+                            image: 'gambar/profile.png',
+                          ),
                           const SizedBox(height: 12),
-                          const _InputField(label: 'Password', image: 'gambar/password.png', obscureText: true),
+                          const _InputField(
+                            label: 'Password',
+                            image: 'gambar/password.png',
+                            obscureText: true,
+                          ),
                           const SizedBox(height: 20),
                           SizedBox(
                             height: 48,
                             child: ElevatedButton(
                               onPressed: () {
-                              Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const MasukPage()),
-                            );                                
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const MasukPage(),
+                                  ),
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryGreen,
@@ -98,7 +105,11 @@ class DaftarPage extends StatelessWidget {
                               ),
                               child: const Text(
                                 'Daftar',
-                                style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 255, 255, 255), fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -146,17 +157,16 @@ class _InputField extends StatelessWidget {
       style: const TextStyle(color: primaryGreen),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Color(0xFF4C732E), fontWeight: FontWeight.w600),
+        labelStyle: const TextStyle(
+          color: Color(0xFF4C732E),
+          fontWeight: FontWeight.w600,
+        ),
         floatingLabelStyle: const TextStyle(color: Color(0xFF4C732E)),
         prefixIcon: Padding(
-    padding: const EdgeInsets.all(12), 
-    child: Image.asset(
-    image,
-    width: 25, 
-    height: 25,
-    fit: BoxFit.contain,
-  ),
-),
+          padding: const EdgeInsets.all(12),
+          child: Image.asset(image, width: 25, height: 25, fit: BoxFit.contain),
+        ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: Color(0xFF4C732E)),
         ),

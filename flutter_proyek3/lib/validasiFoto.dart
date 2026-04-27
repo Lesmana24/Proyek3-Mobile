@@ -31,10 +31,22 @@ class ValidasiFoto extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
-                        border: Border.all(color: primaryGreen.withOpacity(0.2), width: 1),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))],
+                        border: Border.all(
+                          color: primaryGreen.withOpacity(0.2),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.arrow_back, color: Color(0xFF3E792F)),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF3E792F),
+                      ),
                     ),
                   ),
                 ],
@@ -47,7 +59,13 @@ class ValidasiFoto extends StatelessWidget {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 12, offset: const Offset(0, 6))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.12),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Builder(
@@ -59,7 +77,10 @@ class ValidasiFoto extends StatelessWidget {
                         return const Center(
                           child: Padding(
                             padding: EdgeInsets.all(16.0),
-                            child: Text('Gambar tidak tersedia', style: TextStyle(color: Colors.red, fontSize: 16)),
+                            child: Text(
+                              'Gambar tidak tersedia',
+                              style: TextStyle(color: Colors.red, fontSize: 16),
+                            ),
                           ),
                         );
                       },
@@ -84,9 +105,19 @@ class ValidasiFoto extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                         border: Border.all(color: primaryGreen, width: 1.8),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 8, offset: const Offset(0, 4))],
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.12),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.refresh, color: primaryGreen, size: 26),
+                      child: const Icon(
+                        Icons.refresh,
+                        color: primaryGreen,
+                        size: 26,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 32),
@@ -101,9 +132,19 @@ class ValidasiFoto extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                         border: Border.all(color: primaryGreen, width: 1.8),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 8, offset: const Offset(0, 4))],
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.12),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.arrow_forward, color: primaryGreen, size: 26),
+                      child: const Icon(
+                        Icons.arrow_forward,
+                        color: primaryGreen,
+                        size: 26,
+                      ),
                     ),
                   ),
                 ],

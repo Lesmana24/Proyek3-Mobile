@@ -1,22 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:proyek3/home.dart';
-import 'package:proyek3/informasi.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
-    );
-  }
-}
 
 class NotifikasiPage extends StatelessWidget {
   const NotifikasiPage({super.key});
@@ -25,27 +7,27 @@ class NotifikasiPage extends StatelessWidget {
     const {
       "isi":
           "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
-      "waktu": "Minggu, 05 Februari 2026 | 11.05"
+      "waktu": "Minggu, 05 Februari 2026 | 11.05",
     },
     const {
       "isi":
           "Penyiraman selesai! faqih Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
-      "waktu": "Minggu, 05 Februari 2026 | 11.05"
+      "waktu": "Minggu, 05 Februari 2026 | 11.05",
     },
     const {
       "isi":
           "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
-      "waktu": "Minggu, 05 Februari 2026 | 11.05"
+      "waktu": "Minggu, 05 Februari 2026 | 11.05",
     },
     const {
       "isi":
           "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
-      "waktu": "Minggu, 05 Februari 2026 | 11.05"
+      "waktu": "Minggu, 05 Februari 2026 | 11.05",
     },
     const {
       "isi":
           "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
-      "waktu": "Minggu, 05 Februari 2026 | 11.05"
+      "waktu": "Minggu, 05 Februari 2026 | 11.05",
     },
   ];
 
@@ -63,19 +45,16 @@ class NotifikasiPage extends StatelessWidget {
         ),
         title: const Text(
           "Notifikasi",
-          style: TextStyle(
-            color: Colors.green,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
         ),
       ),
       body: ListView.builder(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         itemCount: dataNotifikasi.length,
         itemBuilder: (context, index) {
           return Container(
-            margin: EdgeInsets.only(bottom: 12),
-            padding: EdgeInsets.all(12),
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.green[800],
               borderRadius: BorderRadius.circular(12),
@@ -85,19 +64,16 @@ class NotifikasiPage extends StatelessWidget {
               children: [
                 Text(
                   dataNotifikasi[index]["isi"]!,
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Text(
                     dataNotifikasi[index]["waktu"]!,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 11,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 11),
                   ),
-                )
+                ),
               ],
             ),
           );
