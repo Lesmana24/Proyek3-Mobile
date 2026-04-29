@@ -1,14 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_proyek3/cekAI.dart';
-import 'fotoAI.dart';
-import 'cekAI.dart';
+import 'package:flutter_proyek3/cek_ai.dart';
 
 class ValidasiFoto extends StatelessWidget {
   final Uint8List? imageBytes;
 
-  const ValidasiFoto({Key? key, this.imageBytes}) : super(key: key);
+  const ValidasiFoto({super.key, this.imageBytes});
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +30,12 @@ class ValidasiFoto extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: primaryGreen.withOpacity(0.2),
+                          color: primaryGreen.withValues(alpha: 0.2),
                           width: 1,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -61,7 +59,7 @@ class ValidasiFoto extends StatelessWidget {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.12),
+                          color: Colors.black.withValues(alpha: 0.12),
                           blurRadius: 12,
                           offset: const Offset(0, 6),
                         ),
@@ -107,7 +105,7 @@ class ValidasiFoto extends StatelessWidget {
                         border: Border.all(color: primaryGreen, width: 1.8),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.12),
+                            color: Colors.black.withValues(alpha: 0.12),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -134,7 +132,7 @@ class ValidasiFoto extends StatelessWidget {
                         border: Border.all(color: primaryGreen, width: 1.8),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.12),
+                            color: Colors.black.withValues(alpha: 0.12),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),

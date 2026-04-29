@@ -1,12 +1,10 @@
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'validasiFoto.dart';
+import 'validasi_foto.dart';
 
 class FotoAIPage extends StatefulWidget {
-  const FotoAIPage({Key? key}) : super(key: key);
+  const FotoAIPage({super.key});
 
   @override
   State<FotoAIPage> createState() => _FotoAIPageState();
@@ -89,7 +87,7 @@ class _FotoAIPageState extends State<FotoAIPage> {
                 color: Colors.grey.shade200,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -121,13 +119,13 @@ class _FotoAIPageState extends State<FotoAIPage> {
                 height: 72,
                 decoration: BoxDecoration(
                   color: _hoverCapture
-                      ? primaryGreen.withOpacity(0.85)
+                      ? primaryGreen.withValues(alpha: 0.85)
                       : primaryGreen,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),

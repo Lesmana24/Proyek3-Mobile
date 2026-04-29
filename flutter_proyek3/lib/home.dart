@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
-import 'cekAI.dart';
+import 'cek_ai.dart';
 import 'informasi.dart';
 import 'notifikasi.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomeState();
@@ -255,7 +255,7 @@ class _HomeState extends State<HomePage> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
+                          color: Colors.black.withValues(alpha: 0.25),
                           blurRadius: 10,
                           offset: const Offset(0, 1),
                         ),
@@ -488,7 +488,7 @@ class _HomeState extends State<HomePage> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withValues(alpha: 0.25),
                                   blurRadius: 10,
                                   offset: const Offset(0, 1),
                                 ),
@@ -553,7 +553,7 @@ class _HomeState extends State<HomePage> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 10,
               offset: const Offset(0, 1),
             ),
@@ -572,7 +572,7 @@ class _HomeState extends State<HomePage> {
         color: const Color.fromARGB(255, 255, 255, 255),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.25), blurRadius: 10),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10),
         ],
       ),
       child: Stack(

@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'fotoAI.dart';
-import 'validasiFoto.dart';
+import 'foto_ai.dart';
+import 'validasi_foto.dart';
 
 class CekAIPage extends StatefulWidget {
-  const CekAIPage({Key? key}) : super(key: key);
+  const CekAIPage({super.key});
 
   @override
   State<CekAIPage> createState() => _CekAIPageState();
@@ -16,6 +16,7 @@ class _CekAIPageState extends State<CekAIPage> {
   bool _isSidebarOpen = false;
   bool _hoverAmbil = false;
   bool _hoverUpload = false;
+
   final ImagePicker _picker = ImagePicker();
   XFile? _pickedImage;
 
@@ -39,15 +40,16 @@ class _CekAIPageState extends State<CekAIPage> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Main content
+          /// MAIN CONTENT
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: 24.0,
-                vertical: 16.0,
+                horizontal: 24,
+                vertical: 16,
               ),
               child: Column(
                 children: [
+                  /// HEADER
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -61,7 +63,10 @@ class _CekAIPageState extends State<CekAIPage> {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 42),
+
+                  /// TITLE
                   const Text(
                     'Cek Kesehatan\nTanaman (AI)',
                     textAlign: TextAlign.center,
@@ -72,10 +77,13 @@ class _CekAIPageState extends State<CekAIPage> {
                       height: 1.2,
                     ),
                   ),
+
                   const SizedBox(height: 40),
+
+                  /// BUTTONS
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      /// AMBIL FOTO
                       Expanded(
                         child: MouseRegion(
                           onEnter: (_) => setState(() => _hoverAmbil = true),
@@ -90,7 +98,7 @@ class _CekAIPageState extends State<CekAIPage> {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _hoverAmbil
-                                  ? primaryGreen.withOpacity(0.8)
+                                  ? primaryGreen.withValues(alpha: 0.8)
                                   : primaryGreen,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24),
@@ -100,7 +108,6 @@ class _CekAIPageState extends State<CekAIPage> {
                             child: const Text(
                               'Ambil Foto',
                               style: TextStyle(
-                                fontSize: 16,
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -108,13 +115,17 @@ class _CekAIPageState extends State<CekAIPage> {
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 12),
+
+                      /// UPLOAD FOTO
                       Expanded(
                         child: MouseRegion(
                           onEnter: (_) => setState(() => _hoverUpload = true),
                           onExit: (_) => setState(() => _hoverUpload = false),
                           child: OutlinedButton(
                             onPressed: () async {
+                              final navigator = Navigator.of(context);
                               final picked = await _picker.pickImage(
                                 source: ImageSource.gallery,
                                 imageQuality: 85,
@@ -129,7 +140,7 @@ class _CekAIPageState extends State<CekAIPage> {
                                   _pickedImage = picked;
                                 });
 
-                                Navigator.of(context).push(
+                                navigator.push(
                                   MaterialPageRoute(
                                     builder: (_) =>
                                         ValidasiFoto(imageBytes: bytes),
@@ -139,8 +150,8 @@ class _CekAIPageState extends State<CekAIPage> {
                             },
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(
-                                color: primaryGreen.withOpacity(
-                                  _hoverUpload ? 0.8 : 1.0,
+                                color: primaryGreen.withValues(
+                                  alpha: _hoverUpload ? 0.8 : 1.0,
                                 ),
                                 width: 2,
                               ),
@@ -149,14 +160,13 @@ class _CekAIPageState extends State<CekAIPage> {
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               backgroundColor: _hoverUpload
-                                  ? primaryGreen.withOpacity(0.1)
+                                  ? primaryGreen.withValues(alpha: 0.1)
                                   : Colors.white,
                             ),
                             child: Text(
                               'Upload dari Galeri',
                               style: TextStyle(
                                 color: primaryGreen,
-                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -165,12 +175,16 @@ class _CekAIPageState extends State<CekAIPage> {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 12),
+
                   const Text(
                     'Unggah foto daun/tanaman dengan pencahayaan cukup',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF7A7A7A), fontSize: 14),
+                    style: TextStyle(color: Color(0xFF7A7A7A)),
                   ),
+
+                  /// PREVIEW IMAGE
                   if (_pickedImage != null) ...[
                     const SizedBox(height: 14),
                     ClipRRect(
@@ -188,30 +202,30 @@ class _CekAIPageState extends State<CekAIPage> {
             ),
           ),
 
-          // Sidebar overlay
+          /// OVERLAY
           if (_isSidebarOpen)
             GestureDetector(
               onTap: _closeSidebar,
-              child: Container(color: Colors.black.withOpacity(0.5)),
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.5),
+              ),
             ),
 
-          // Sidebar
+          /// SIDEBAR
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
             right: _isSidebarOpen ? 0 : -280,
             top: 0,
             bottom: 0,
             width: 280,
             child: Container(
-              color: const Color(0xFF3E792F), // ⬅️ FULL HIJAU
+              color: const Color(0xFF3E792F),
               child: SafeArea(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// HEADER
+                    /// HEADER SIDEBAR
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 22, 20, 10),
+                      padding: const EdgeInsets.all(20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -223,23 +237,13 @@ class _CekAIPageState extends State<CekAIPage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-
                           GestureDetector(
                             onTap: _closeSidebar,
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              alignment: Alignment.center,
-                              child: const Text(
+                            child: const CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: Text(
                                 'X',
-                                style: TextStyle(
-                                  color: Color(0xFF3E792F),
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyle(color: Color(0xFF3E792F)),
                               ),
                             ),
                           ),
@@ -247,33 +251,15 @@ class _CekAIPageState extends State<CekAIPage> {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
-
-                    /// LIST MENU
+                    /// LIST
                     Expanded(
                       child: ListView(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         children: [
-                          _historyItem(
-                            title: 'Tanaman Hias',
-                            selected: true,
-                            onTap: _closeSidebar,
-                          ),
-                          _historyItem(
-                            title: 'Daun Kering',
-                            selected: false,
-                            onTap: _closeSidebar,
-                          ),
-                          _historyItem(
-                            title: 'Tanaman Janda',
-                            selected: false,
-                            onTap: _closeSidebar,
-                          ),
-                          _historyItem(
-                            title: 'Daun Bolong',
-                            selected: false,
-                            onTap: _closeSidebar,
-                          ),
+                          _historyItem('Tanaman Hias', true),
+                          _historyItem('Daun Kering', false),
+                          _historyItem('Tanaman Janda', false),
+                          _historyItem('Daun Bolong', false),
                         ],
                       ),
                     ),
@@ -287,28 +273,21 @@ class _CekAIPageState extends State<CekAIPage> {
     );
   }
 
-  Widget _historyItem({
-    required String title,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
+  Widget _historyItem(String title, bool selected) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          decoration: BoxDecoration(
-            color: selected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white, width: 1.5),
-          ),
-          child: Text(
-            title,
-            style: TextStyle(
-              color: selected ? const Color(0xFF3E792F) : Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: selected ? const Color(0xFF3E792F) : Colors.white,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -316,19 +295,18 @@ class _CekAIPageState extends State<CekAIPage> {
   }
 
   Widget _iconCircularButton({
-    IconData? icon,
-    Widget? child,
+    required IconData icon,
     required VoidCallback onPressed,
   }) {
     return Material(
       color: const Color(0xFFEEF5EE),
       shape: const CircleBorder(),
       child: InkWell(
-        customBorder: const CircleBorder(),
         onTap: onPressed,
+        customBorder: const CircleBorder(),
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: child ?? Icon(icon, color: const Color(0xFF3E792F), size: 22),
+          padding: const EdgeInsets.all(10),
+          child: Icon(icon, color: const Color(0xFF3E792F)),
         ),
       ),
     );

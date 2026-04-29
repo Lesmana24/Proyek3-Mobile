@@ -62,7 +62,7 @@ class WelcomePage extends StatelessWidget {
                 const SizedBox(height: 30),
 
                 Center(
-                  child: Container(
+                  child: SizedBox(
                     width: 320,
                     height: 340,
                     child: ClipRRect(

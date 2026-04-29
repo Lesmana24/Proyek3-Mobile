@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class InformasiPage extends StatelessWidget {
-  const InformasiPage({Key? key}) : super(key: key);
+  const InformasiPage({super.key});
 
   Widget buildSectionTitle(String text) {
     return Padding(

@@ -4,27 +4,27 @@ class NotifikasiPage extends StatelessWidget {
   const NotifikasiPage({super.key});
 
   static const List<Map<String, String>> dataNotifikasi = [
-    const {
+    {
       "isi":
           "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
       "waktu": "Minggu, 05 Februari 2026 | 11.05",
     },
-    const {
-      "isi":
-          "Penyiraman selesai! faqih Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
-      "waktu": "Minggu, 05 Februari 2026 | 11.05",
-    },
-    const {
+    {
       "isi":
           "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
       "waktu": "Minggu, 05 Februari 2026 | 11.05",
     },
-    const {
+    {
       "isi":
           "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
       "waktu": "Minggu, 05 Februari 2026 | 11.05",
     },
-    const {
+    {
+      "isi":
+          "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
+      "waktu": "Minggu, 05 Februari 2026 | 11.05",
+    },
+    {
       "isi":
           "Penyiraman selesai! Pemicu: Kondisi Kritis (Suhu 29.2C, Lembab: 83%)",
       "waktu": "Minggu, 05 Februari 2026 | 11.05",
