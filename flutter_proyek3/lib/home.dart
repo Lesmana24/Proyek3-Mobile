@@ -3,6 +3,9 @@ import 'main.dart';
 import 'cek_ai.dart';
 import 'informasi.dart';
 import 'notifikasi.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
+import 'dart:io';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,24 +14,94 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomeState();
 }
 
+// Global variable (sementara sebelum pakai backend Laravel)
 int suhu = 24;
 int kelembaban = 60;
+int durasiKritis = 3;
+int durasiJadwal = 6;
 
 class _HomeState extends State<HomePage> {
-  TimeOfDay selectedTime = const TimeOfDay(hour: 15, minute: 30);
+  // 1. PINDAHAN: Variabel dinamis ditaruh di dalam State
+  String suhuSaatIni = "--";
+  String lembabSaatIni = "--";
+  String statusMqtt = "Menghubungkan...";
+  
+  late MqttServerClient client;
 
+  TimeOfDay selectedTime = const TimeOfDay(hour: 15, minute: 30);
   Map<String, bool> selectedDays = {
-    'Sun': true,
-    'Mon': true,
-    'Tues': true,
-    'Wed': true,
-    'Thur': true,
-    'Fri': true,
-    'Sat': true,
+    'Min': false, 'Sen': false, 'Sel': false, 'Rab': false,
+    'Kam': false, 'Jum': false, 'Sab': false,
   };
 
+  @override
+  void initState() {
+    super.initState();
+    // 2. Setup Client MQTT dengan ID unik
+    client = MqttServerClient('broker.emqx.io', 'flutter_client_${DateTime.now().millisecondsSinceEpoch}');
+    setupMqtt(); // Panggil saat layar pertama dibuka
+  }
+
+  Future<void> setupMqtt() async {
+    client.port = 1883;
+    client.keepAlivePeriod = 20;
+    client.onDisconnected = () {
+      setState(() => statusMqtt = "Terputus dari Broker");
+    };
+
+    try {
+      await client.connect();
+    } on NoConnectionException catch (e) {
+      print('MQTT Client Error: $e');
+      client.disconnect();
+    } on SocketException catch (e) {
+      print('MQTT Socket Error: $e');
+      client.disconnect();
+    }
+
+    if (client.connectionStatus!.state == MqttConnectionState.connected) {
+      setState(() => statusMqtt = "Perangkat ONLINE");
+
+      // 3. Subscribe ke Topik ESP32 lu
+      client.subscribe('Proyek2/monitoring/suhu', MqttQos.atLeastOnce);
+      client.subscribe('Proyek2/monitoring/lembab', MqttQos.atLeastOnce);
+
+      // 4. Dengerin kalau ada data masuk
+      client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+        final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
+        final String pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+
+        // Update UI pakai setState biar angkanya berubah otomatis
+        setState(() {
+          if (c[0].topic == 'Proyek2/monitoring/suhu') {
+            suhuSaatIni = pt;
+          } else if (c[0].topic == 'Proyek2/monitoring/lembab') {
+            lembabSaatIni = pt;
+          }
+        });
+      });
+    } else {
+      setState(() => statusMqtt = "Gagal Konek");
+      client.disconnect();
+    }
+  }
+
   void _showSettingPopup(String type) {
-    int value = type == "Pengaturan Suhu" ? suhu : kelembaban;
+    int value;
+    String unit;
+    if (type == "Pengaturan Suhu") {
+      value = suhu;
+      unit = "°";
+    } else if (type == "Kelembapan") {
+      value = kelembaban;
+      unit = "%";
+    } else if (type == "Durasi Kritis") {
+      value = durasiKritis;
+      unit = "s";
+    } else {
+      value = durasiJadwal;
+      unit = "s";
+    }
 
     showDialog(
       context: context,
@@ -49,78 +122,46 @@ class _HomeState extends State<HomePage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    /// JUDUL
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        type == "Pengaturan Suhu" ? "Suhu" : "Kelembaban",
+                        type,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF4C732E),
                         ),
                       ),
                     ),
-
                     const Divider(),
-
                     const SizedBox(height: 10),
-
-                    /// CONTROL (PANAH - NILAI +)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        /// MINUS
                         GestureDetector(
                           onTap: () {
                             setStateDialog(() {
-                              value--;
+                              if (value > 0) value--;
                             });
                           },
-                          child: const Text(
-                            "-",
-                            style: TextStyle(
-                              fontSize: 100,
-                              color: Color(0xFF4C732E),
-                            ),
-                          ),
+                          child: const Text("-", style: TextStyle(fontSize: 80, color: Color(0xFF4C732E))),
                         ),
-
-                        const SizedBox(width: 20),
-
-                        /// VALUE
+                        const SizedBox(width: 16),
                         Text(
-                          type == "Pengaturan Suhu" ? "$value°" : "$value%",
-                          style: const TextStyle(
-                            fontSize: 50,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF4C732E),
-                          ),
+                          "$value$unit",
+                          style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Color(0xFF4C732E)),
                         ),
-
-                        const SizedBox(width: 20),
-
-                        /// PLUS
+                        const SizedBox(width: 16),
                         GestureDetector(
                           onTap: () {
                             setStateDialog(() {
                               value++;
                             });
                           },
-                          child: const Text(
-                            "+",
-                            style: TextStyle(
-                              fontSize: 50,
-                              color: Color(0xFF4C732E),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: const Text("+", style: TextStyle(fontSize: 48, color: Color(0xFF4C732E), fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 20),
-
-                    /// BUTTON (PERSIS HIJAU BULAT)
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -128,25 +169,21 @@ class _HomeState extends State<HomePage> {
                           setState(() {
                             if (type == "Pengaturan Suhu") {
                               suhu = value;
-                            } else {
+                            } else if (type == "Kelembapan") {
                               kelembaban = value;
+                            } else if (type == "Durasi Kritis") {
+                              durasiKritis = value;
+                            } else {
+                              durasiJadwal = value;
                             }
                           });
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4C732E),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
-                        child: const Text(
-                          "Set Batas",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: const Text("Set Nilai", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
@@ -160,10 +197,7 @@ class _HomeState extends State<HomePage> {
   }
 
   Future<void> _selectTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-    );
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: selectedTime);
     if (picked != null) {
       setState(() => selectedTime = picked);
     }
@@ -178,38 +212,22 @@ class _HomeState extends State<HomePage> {
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
           child: Column(
             children: [
-              /// ================= TOP BAR =================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  /// LOGOUT (outline)
                   OutlinedButton(
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const MainPage()),
-                        (route) => false,
+                        context, MaterialPageRoute(builder: (_) => const MainPage()), (route) => false,
                       );
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFF4C732E)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 8,
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     ),
-                    child: const Text(
-                      "Log Out",
-                      style: TextStyle(
-                        color: Color(0xFF4C732E),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: const Text("Log Out", style: TextStyle(color: Color(0xFF4C732E), fontWeight: FontWeight.w600)),
                   ),
-
                   Row(
                     children: [
                       _iconButton('gambar/informasi.png'),
@@ -219,293 +237,204 @@ class _HomeState extends State<HomePage> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 35),
-
-              /// ================= TITLE =================
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "halo,\nAgro Squad",
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4C732E),
-                    height: 1.1,
-                  ),
+                  style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: Color(0xFF4C732E), height: 1.1),
                 ),
               ),
-
               const SizedBox(height: 30),
-
-              /// ================= MAIN CARD =================
               const SizedBox(height: 50),
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  /// CARD
                   Container(
                     width: 430,
                     padding: const EdgeInsets.fromLTRB(20, 90, 20, 70),
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 255, 255, 255),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(60),
-                        topRight: Radius.circular(60),
-                      ),
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(60), topRight: Radius.circular(60)),
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.25),
-                          blurRadius: 10,
-                          offset: const Offset(0, 1),
-                        ),
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(0, 1)),
                       ],
                     ),
                     child: Column(
                       children: [
-                        /// STATUS MQTT
+                        // 5. BINDING DATA MQTT STATUS DI SINI
                         RichText(
-                          text: const TextSpan(
+                          text: TextSpan(
                             children: [
-                              TextSpan(
+                              const TextSpan(
                                 text: "Status MQTT ",
-                                style: TextStyle(
-                                  color: Color(0xFF6B8A4D),
-                                  fontSize: 12,
-                                ),
+                                style: TextStyle(color: Color(0xFF6B8A4D), fontSize: 12),
                               ),
                               TextSpan(
-                                text: "Menunggu Data Alat...",
+                                text: statusMqtt,
                                 style: TextStyle(
-                                  color: Colors.orange,
+                                  // Ubah warna dinamis: hijau kalau konek, oren/merah kalau gagal
+                                  color: statusMqtt.contains("ONLINE") ? Colors.green : Colors.orange, 
                                   fontSize: 12,
+                                  fontWeight: FontWeight.bold
                                 ),
                               ),
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 20),
-
-                        /// SUHU CARD
-                        _dataCard("$suhu°", "Pengaturan Suhu"),
-
-                        const SizedBox(height: 16),
-
-                        /// KELEMBABAN
-                        _dataCard("$kelembaban%", "Kelembaban"),
-
-                        const SizedBox(height: 25),
-
-                        /// JADWAL
-                        const Text(
-                          "Jadwal Otomatis",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Color(0xFF4C732E),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Batas Ambang Sensor",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF4C732E)),
                           ),
                         ),
-
-                        const SizedBox(height: 14),
-
+                        const SizedBox(height: 12),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(child: _settingCard(value: "$suhu°", label: "Suhu", type: "Pengaturan Suhu")),
+                            const SizedBox(width: 12),
+                            Expanded(child: _settingCard(value: "$kelembaban%", label: "Kelembapan", type: "Kelembapan")),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Durasi Penyiraman",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF4C732E)),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(child: _settingCard(value: "${durasiKritis}s", label: "Durasi Kritis", type: "Durasi Kritis")),
+                            const SizedBox(width: 12),
+                            Expanded(child: _settingCard(value: "${durasiJadwal}s", label: "Durasi Jadwal Otomatis", type: "Durasi Jadwal Otomatis")),
+                          ],
+                        ),
+                        const SizedBox(height: 25),
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Jadwal Otomatis",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF4C732E)),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: selectedDays.keys.map((day) {
                             final isSelected = selectedDays[day]!;
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ), // ⬅️ jarak antar hari
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    selectedDays[day] = !isSelected;
-                                  });
-                                },
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      width: 26,
-                                      height: 26,
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? const Color(0xFF4C732E)
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(
-                                          color: const Color(0xFF4C732E),
-                                        ),
-                                      ),
-                                      child: isSelected
-                                          ? const Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                              size: 16,
-                                            )
-                                          : null,
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedDays[day] = !isSelected;
+                                });
+                              },
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 28, height: 28,
+                                    decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: const Color(0xFF4C732E), width: 1.5),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      day,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                      ), // ⬅️ sedikit lebih kecil biar muat
-                                    ),
-                                  ],
-                                ),
+                                    child: isSelected ? const Icon(Icons.check, color: Color(0xFF4C732E), size: 16) : null,
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(day, style: const TextStyle(fontSize: 10, color: Color(0xFF4C732E), fontWeight: FontWeight.w500)),
+                                ],
                               ),
                             );
                           }).toList(),
                         ),
-
                         const SizedBox(height: 18),
-
-                        /// TIME
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 18),
-                          width: 300,
-                          height: 50,
+                          width: double.infinity, height: 50,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: Color.fromARGB(255, 63, 121, 19),
-                            ),
+                            border: Border.all(color: const Color(0xFF4C732E)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF4C732E),
-                                ),
+                                style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF4C732E)),
                               ),
                               GestureDetector(
                                 onTap: _selectTime,
-                                child: const Icon(
-                                  Icons.access_time,
-                                  color: Color(0xFF4C732E),
-                                ),
+                                child: const Icon(Icons.access_time, color: Color(0xFF4C732E)),
                               ),
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 18),
-
-                        /// BUTTON
                         SizedBox(
                           width: 180,
                           child: ElevatedButton(
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF4C732E),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                             ),
-                            child: const Text(
-                              "Set Jadwal",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            child: const Text("Set Jadwal", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],
                     ),
                   ),
-
                   Positioned(
-                    top: -55,
-                    left: 0,
-                    right: 0,
+                    top: -55, left: 0, right: 0,
                     child: SizedBox(
                       height: 100,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          /// TEKS KIRI (SUHU)
                           Positioned(
-                            top: 65,
-                            left: 30,
+                            top: 65, left: 30,
                             child: Column(
-                              children: const [
+                              children: [
+                                // 6. BINDING DATA SUHU REALTIME DI SINI
                                 Text(
-                                  "-- °",
-                                  style: TextStyle(
-                                    color: Color(0xFF4C732E),
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  "$suhuSaatIni °",
+                                  style: const TextStyle(color: Color(0xFF4C732E), fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(height: 4),
-                                Text(
-                                  "Suhu Saat Ini",
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Color(0xFF6B8A4D),
-                                  ),
-                                ),
+                                const SizedBox(height: 4),
+                                const Text("Suhu Saat Ini", style: TextStyle(fontSize: 10, color: Color(0xFF6B8A4D))),
                               ],
                             ),
                           ),
-
-                          /// TEKS KANAN (KELEMBABAN)
                           Positioned(
-                            top: 65,
-                            right: 30,
+                            top: 65, right: 30,
                             child: Column(
-                              children: const [
+                              children: [
+                                // 7. BINDING DATA KELEMBAPAN REALTIME DI SINI
                                 Text(
-                                  "-- %",
-                                  style: TextStyle(
-                                    color: Color(0xFF4C732E),
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  "$lembabSaatIni %",
+                                  style: const TextStyle(color: Color(0xFF4C732E), fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(height: 4),
-                                Text(
-                                  "Kelembaban Saat Ini",
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Color(0xFF6B8A4D),
-                                  ),
-                                ),
+                                const SizedBox(height: 4),
+                                const Text("Kelembaban Saat Ini", style: TextStyle(fontSize: 10, color: Color(0xFF6B8A4D))),
                               ],
                             ),
                           ),
-
-                          /// LOGO TENGAH (TETAP)
                           Container(
-                            width: 90,
-                            height: 90,
+                            width: 90, height: 90,
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.25),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
+                              color: Colors.white, shape: BoxShape.circle,
+                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(0, 1))],
                             ),
                             child: ClipOval(
-                              // ⬅️ biar area klik ikut lingkaran
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const CekAIPage(),
-                                      ),
-                                    );
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => const CekAIPage()));
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(18),
@@ -528,86 +457,50 @@ class _HomeState extends State<HomePage> {
     );
   }
 
-  /// ================= WIDGET REUSABLE =================
-
   Widget _iconButton(String path) {
     return GestureDetector(
       onTap: () {
         if (path.contains('informasi')) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const InformasiPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const InformasiPage()));
         } else if (path.contains('notif')) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NotifikasiPage()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const NotifikasiPage()));
         }
       },
       child: Container(
-        width: 42,
-        height: 42,
+        width: 42, height: 42,
         decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
-              blurRadius: 10,
-              offset: const Offset(0, 1),
-            ),
-          ],
+          color: Colors.white, shape: BoxShape.circle,
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(0, 1))],
         ),
         child: Center(child: Image.asset(path, width: 18, height: 18)),
       ),
     );
   }
 
-  Widget _dataCard(String value, String label) {
+  Widget _settingCard({required String value, required String label, required String type}) {
     return Container(
-      width: 300,
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      padding: const EdgeInsets.fromLTRB(14, 12, 12, 16),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 255, 255, 255),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10),
-        ],
+        color: Colors.white, borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Stack(
-        alignment: Alignment.topRight, // ⬅️ INI KUNCI NYA
         children: [
-          /// ICON SETTING (pojok kanan atas)
-          GestureDetector(
-            onTap: () {
-              _showSettingPopup(label);
-            },
-            child: const Icon(
-              Icons.settings,
-              size: 20,
-              color: Color(0xFF4C732E),
+          Positioned(
+            top: 0, right: 0,
+            child: GestureDetector(
+              onTap: () => _showSettingPopup(type),
+              child: const Icon(Icons.settings, size: 18, color: Color(0xFF4C732E)),
             ),
           ),
-
-          /// ISI CARD
-          SizedBox(
-            width: double.infinity, // ⬅️ bikin full lebar
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4C732E),
-                  ),
-                ),
-                Text(label, style: const TextStyle(color: Color(0xFF4C732E))),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text(value, style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF4C732E), height: 1.1)),
+              const SizedBox(height: 4),
+              Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF6B8A4D))),
+            ],
           ),
         ],
       ),
