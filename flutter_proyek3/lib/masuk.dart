@@ -1,27 +1,68 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'auth_.service.dart';
 
-class MasukPage extends StatelessWidget {
+class MasukPage extends StatefulWidget {
   const MasukPage({super.key});
 
   @override
+  State<MasukPage> createState() => _MasukPageState();
+}
+
+class _MasukPageState extends State<MasukPage> {
+  final TextEditingController _namaCtrl = TextEditingController();
+  final TextEditingController _passwordCtrl = TextEditingController();
+  bool _isLoading = false;
+
+  static const primaryGreen = Color(0xFF4C732E);
+
+  @override
+  void dispose() {
+    _namaCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
+
+  void _handleMasuk() {
+    final nama = _namaCtrl.text.trim();
+    final password = _passwordCtrl.text.trim();
+
+    // Validasi: jangan panggil API kalau kosong
+    if (nama.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nama dan Password tidak boleh kosong!'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    prosesLogin(context, nama, password).whenComplete(
+      () => setState(() => _isLoading = false),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    const primaryGreen = Color(0xFF4C732E);
     return Scaffold(
       body: Stack(
         children: [
+          // ── Background dua warna ──
           Row(
             children: [
               Expanded(flex: 3, child: Container(color: Colors.white)),
               Expanded(flex: 2, child: Container(color: primaryGreen)),
             ],
           ),
+
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Tombol Back ──
                   InkWell(
                     onTap: () => Navigator.pop(context),
                     splashColor: primaryGreen.withValues(alpha: 0.2),
@@ -43,11 +84,13 @@ class MasukPage extends StatelessWidget {
                         Icons.arrow_back,
                         color: primaryGreen,
                         size: 20,
-                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 24),
+
+                  // ── Card Form ──
                   Center(
                     child: Container(
                       width: double.infinity,
@@ -73,55 +116,70 @@ class MasukPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF4C732E),
+                              color: primaryGreen,
                             ),
                           ),
                           const SizedBox(height: 24),
-                          const _InputField(
+
+                          // Input Nama
+                          _InputField(
                             label: 'Nama',
                             image: 'gambar/profile.png',
+                            controller: _namaCtrl,
                           ),
                           const SizedBox(height: 12),
-                          const _InputField(
+
+                          // Input Password
+                          _InputField(
                             label: 'Password',
                             image: 'gambar/password.png',
                             obscureText: true,
+                            controller: _passwordCtrl,
                           ),
                           const SizedBox(height: 20),
+
+                          // Tombol Masuk
                           SizedBox(
                             height: 48,
                             child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HomePage(),
-                                  ),
-                                );
-                              },
+                              onPressed: _isLoading ? null : _handleMasuk,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryGreen,
+                                disabledBackgroundColor:
+                                    primaryGreen.withValues(alpha: 0.6),
                                 shape: const StadiumBorder(),
                               ),
-                              child: const Text(
-                                'Masuk',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Color.fromARGB(255, 255, 255, 255),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Masuk',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
+
+          // ── Gambar pojok kanan bawah ──
           Positioned(
             bottom: 0,
             right: 0,
@@ -137,14 +195,19 @@ class MasukPage extends StatelessWidget {
   }
 }
 
+// ──────────────────────────────────────────────────────
+// Input Field dengan TextEditingController
+// ──────────────────────────────────────────────────────
 class _InputField extends StatelessWidget {
   final String label;
   final String image;
   final bool obscureText;
+  final TextEditingController controller;
 
   const _InputField({
     required this.label,
     required this.image,
+    required this.controller,
     this.obscureText = false,
   });
 
@@ -152,26 +215,27 @@ class _InputField extends StatelessWidget {
   Widget build(BuildContext context) {
     const primaryGreen = Color(0xFF4C732E);
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       cursorColor: primaryGreen,
       style: const TextStyle(color: primaryGreen),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(
-          color: Color(0xFF4C732E),
+          color: primaryGreen,
           fontWeight: FontWeight.w600,
         ),
-        floatingLabelStyle: const TextStyle(color: Color(0xFF4C732E)),
+        floatingLabelStyle: const TextStyle(color: primaryGreen),
         prefixIcon: Padding(
           padding: const EdgeInsets.all(12),
           child: Image.asset(image, width: 25, height: 25, fit: BoxFit.contain),
         ),
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF4C732E)),
+          borderSide: BorderSide(color: primaryGreen),
         ),
         focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF4C732E), width: 2),
+          borderSide: BorderSide(color: primaryGreen, width: 2),
         ),
       ),
     );
