@@ -74,9 +74,11 @@ class _HomeState extends State<HomePage> {
     if (client.connectionStatus!.state == MqttConnectionState.connected) {
       setState(() => statusMqtt = "Terhubung ke Server");
 
-      // 3. Subscribe ke Topik ESP32 lu
+      // 3. Subscribe ke Topik ESP32
       client.subscribe('AgroSquad/monitoring/suhu', MqttQos.atLeastOnce);
       client.subscribe('AgroSquad/monitoring/lembab', MqttQos.atLeastOnce);
+      // Subscribe wildcard kontrol agar sinkron real-time dengan Web
+      client.subscribe('AgroSquad/kontrol/#', MqttQos.atLeastOnce);
 
       // 4. Dengerin kalau ada data masuk
       client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
@@ -84,13 +86,28 @@ class _HomeState extends State<HomePage> {
         final String pt = MqttPublishPayload.bytesToStringAsString(
           recMess.payload.message,
         );
+        final String topic = c[0].topic;
 
         // Update UI pakai setState biar angkanya berubah otomatis
         setState(() {
-          if (c[0].topic == 'AgroSquad/monitoring/suhu') {
+          // --- Monitoring (data sensor ESP32) ---
+          if (topic == 'AgroSquad/monitoring/suhu') {
             suhuSaatIni = pt;
-          } else if (c[0].topic == 'AgroSquad/monitoring/lembab') {
+          } else if (topic == 'AgroSquad/monitoring/lembab') {
             lembabSaatIni = pt;
+
+          // --- Kontrol (sinkronisasi dari Web) ---
+          } else if (topic == 'AgroSquad/kontrol/batas_suhu') {
+            suhu = int.tryParse(pt) ?? suhu;
+          } else if (topic == 'AgroSquad/kontrol/batas_lembab') {
+            kelembaban = int.tryParse(pt) ?? kelembaban;
+          } else if (topic == 'AgroSquad/kontrol/durasi_suhu') {
+            durasiKritis = int.tryParse(pt) ?? durasiKritis;
+          } else if (topic == 'AgroSquad/kontrol/durasi_jadwal') {
+            durasiJadwal = int.tryParse(pt) ?? durasiJadwal;
+          } else if (topic == 'AgroSquad/kontrol/jadwal_mingguan') {
+            // Jadwal format kompleks, fetch ulang dari DB agar aman
+            fetchSettings();
           }
         });
       });
@@ -398,8 +415,12 @@ class _HomeState extends State<HomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF0FDF4),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+        child: RefreshIndicator(
+          color: const Color(0xFF4C732E),
+          onRefresh: fetchSettings,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
           child: Column(
             children: [
               Row(
@@ -823,9 +844,10 @@ class _HomeState extends State<HomePage> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        ), // SingleChildScrollView
+        ), // RefreshIndicator
+      ), // SafeArea
+    ); // Scaffold
   }
 
   Widget _iconButton(String path) {
