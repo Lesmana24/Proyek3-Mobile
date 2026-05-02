@@ -64,10 +64,10 @@ class _HomeState extends State<HomePage> {
     try {
       await client.connect();
     } on NoConnectionException catch (e) {
-      print('MQTT Client Error: $e');
+      debugPrint('MQTT Client Error: $e');
       client.disconnect();
     } on SocketException catch (e) {
-      print('MQTT Socket Error: $e');
+      debugPrint('MQTT Socket Error: $e');
       client.disconnect();
     }
 
@@ -275,7 +275,7 @@ class _HomeState extends State<HomePage> {
 
     // 2. Hentikan jika token tidak ditemukan
     if (token == null) {
-      print('[DB] Token tidak ditemukan, user belum login');
+      debugPrint('[DB] Token tidak ditemukan, user belum login');
       return;
     }
 
@@ -292,23 +292,23 @@ class _HomeState extends State<HomePage> {
         body: jsonEncode({'key': key, 'value': value}),
       );
       // 4. Debug log
-      print('[DB] Status : ${response.statusCode}');
-      print('[DB] Body   : ${response.body}');
+      debugPrint('[DB] Status : ${response.statusCode}');
+      debugPrint('[DB] Body   : ${response.body}');
     } catch (e) {
-      print('[DB] Error  : $e');
+      debugPrint('[DB] Error  : $e');
     }
   }
 
   /// Publish pesan ke broker MQTT pada topik tertentu.
   void publishMqtt(String topic, String message) {
     if (client.connectionStatus?.state != MqttConnectionState.connected) {
-      print('[MQTT] Tidak terkoneksi, pesan gagal dikirim');
+      debugPrint('[MQTT] Tidak terkoneksi, pesan gagal dikirim');
       return;
     }
     final builder = MqttClientPayloadBuilder();
     builder.addString(message);
     client.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
-    print('[MQTT] Publish → $topic : $message');
+    debugPrint('[MQTT] Publish → $topic : $message');
   }
 
   /// Ambil semua setting dari database Laravel saat halaman dimuat.
@@ -318,7 +318,7 @@ class _HomeState extends State<HomePage> {
     final token = prefs.getString('token');
 
     if (token == null) {
-      print('[FETCH] Token tidak ditemukan, user belum login');
+      debugPrint('[FETCH] Token tidak ditemukan, user belum login');
       return;
     }
 
@@ -333,8 +333,8 @@ class _HomeState extends State<HomePage> {
         },
       );
 
-      print('[FETCH] Status: ${response.statusCode}');
-      print('[FETCH] Body  : ${response.body}');
+      debugPrint('[FETCH] Status: ${response.statusCode}');
+      debugPrint('[FETCH] Body  : ${response.body}');
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -379,7 +379,7 @@ class _HomeState extends State<HomePage> {
         }
       }
     } catch (e) {
-      print('[FETCH] Error : $e');
+      debugPrint('[FETCH] Error : $e');
     }
   }
 

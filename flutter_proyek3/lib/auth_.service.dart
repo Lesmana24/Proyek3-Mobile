@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'home.dart'; // Ganti sesuai nama file HomePage lu
+import 'home.dart';
 
 // URL Ngrok lu + /api (Jangan lupa di-update kalau ngroknya direstart)
 const String baseUrl = 'https://unjoyfully-decrepit-dian.ngrok-free.dev/api';
@@ -33,6 +33,9 @@ Future<void> prosesRegister(BuildContext context, String nama, String password) 
       await prefs.setString('token', token);
       await prefs.setBool('isLoggedIn', true); // Penanda udah login
 
+      // Guard: pastikan widget masih ada sebelum pakai context
+      if (!context.mounted) return;
+
       // Munculin notif sukses
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(data['message']), backgroundColor: Colors.green),
@@ -45,13 +48,14 @@ Future<void> prosesRegister(BuildContext context, String nama, String password) 
         (route) => false,
       );
     } else {
+      if (!context.mounted) return;
       // Kalau gagal (misal nama udah ada)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal: ${data['message'] ?? 'Nama sudah dipakai'}'), backgroundColor: Colors.red),
       );
     }
   } catch (e) {
-    print('Error Register: $e');
+    debugPrint('Error Register: $e');
   }
 }
 
@@ -79,6 +83,9 @@ Future<void> prosesLogin(BuildContext context, String nama, String password) asy
       await prefs.setString('token', token);
       await prefs.setBool('isLoggedIn', true);
 
+      // Guard: pastikan widget masih ada sebelum pakai context
+      if (!context.mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(data['message']), backgroundColor: Colors.green),
       );
@@ -89,12 +96,13 @@ Future<void> prosesLogin(BuildContext context, String nama, String password) asy
         (route) => false,
       );
     } else {
+      if (!context.mounted) return;
       // Kalau gagal (salah password / nama ga ada)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal: ${data['message']}'), backgroundColor: Colors.red),
       );
     }
   } catch (e) {
-    print('Error Login: $e');
+    debugPrint('Error Login: $e');
   }
 }

@@ -33,7 +33,7 @@ class _NotifikasiPageState extends State<NotifikasiPage> {
   Future<void> fetchNotifications() async {
     final token = await _getToken();
     if (token == null) {
-      print('[NOTIF] Token tidak ditemukan, user belum login');
+      debugPrint('[NOTIF] Token tidak ditemukan, user belum login');
       setState(() => _isLoading = false);
       return;
     }
@@ -47,7 +47,7 @@ class _NotifikasiPageState extends State<NotifikasiPage> {
         },
       );
 
-      print('[NOTIF] Status: ${response.statusCode}');
+      debugPrint('[NOTIF] Status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -62,7 +62,7 @@ class _NotifikasiPageState extends State<NotifikasiPage> {
       }
       setState(() => _isLoading = false);
     } catch (e) {
-      print('[NOTIF] Error: $e');
+      debugPrint('[NOTIF] Error: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -93,7 +93,7 @@ class _NotifikasiPageState extends State<NotifikasiPage> {
         }
       }
     } catch (e) {
-      print('[NOTIF] Error clear: $e');
+      debugPrint('[NOTIF] Error clear: $e');
     }
   }
 
