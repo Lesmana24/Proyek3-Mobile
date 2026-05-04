@@ -697,27 +697,28 @@ class _HomeState extends State<HomePage> {
                           width: 180,
                           child: ElevatedButton(
                             onPressed: () {
-                              // 1. Format waktu HH:mm
+                              // 1. Buat list hari dari selectedDays
+                              List<String> arrayHari = [];
+                              for (var val in selectedDays.values) {
+                                arrayHari.add(val ? '1' : '0');
+                              }
+
+                              // 2. Gabung jadi "1,0,0,0,0,0,0"
+                              final stringHari = arrayHari.join(',');
+
+                              // 3. Format waktu "HH:mm"
                               final stringJam =
                                   '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
 
-                              // 2. Konversi hari ke "1,0,1,0,0,0,0" (Min→Sab)
-                              final stringHari = selectedDays.values
-                                  .map((v) => v ? '1' : '0')
-                                  .join(',');
-
-                              // 3. Gabung payload: "1,0,1,0,0,0,0#07:00"
-                              final payloadMqtt = '$stringHari#$stringJam';
-
-                              // 4. Kirim ke MQTT
-                              publishMqtt(
-                                'AgroSquad/kontrol/jadwal_mingguan',
-                                payloadMqtt,
-                              );
-
-                              // 5. Simpan ke database (2 baris terpisah)
+                              // 4. Simpan ke database (urutan penting)
                               simpanKeDatabase('jadwal_hari', stringHari);
                               simpanKeDatabase('jadwal_jam', stringJam);
+
+                              // 5. Kirim ke MQTT (payload: "1,0,0,0,0,0,0#15:30")
+                              publishMqtt(
+                                'AgroSquad/kontrol/jadwal_mingguan',
+                                '$stringHari#$stringJam',
+                              );
 
                               // 6. Feedback ke user
                               ScaffoldMessenger.of(context).showSnackBar(

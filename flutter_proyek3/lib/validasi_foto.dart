@@ -1,12 +1,94 @@
 import 'dart:typed_data';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_proyek3/cek_ai.dart';
+import 'hasil_ai.dart';
 
-class ValidasiFoto extends StatelessWidget {
+class ValidasiFoto extends StatefulWidget {
   final Uint8List? imageBytes;
 
   const ValidasiFoto({super.key, this.imageBytes});
+
+  @override
+  State<ValidasiFoto> createState() => _ValidasiFotoState();
+}
+
+class _ValidasiFotoState extends State<ValidasiFoto> {
+  bool _isLoading = false;
+
+  Future<void> _uploadFotoAIToServer() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Harap login terlebih dahulu')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://unjoyfully-decrepit-dian.ngrok-free.dev/api/ai/upload'),
+      );
+
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          widget.imageBytes!,
+          filename: 'scan_daun.jpg',
+        ),
+      );
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+        final data = responseBody['data'];
+        
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HasilAIPage(
+              data: data,
+              imageBytes: widget.imageBytes,
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menganalisis: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +150,8 @@ class ValidasiFoto extends StatelessWidget {
                     ),
                     child: Builder(
                       builder: (context) {
-                        if (imageBytes != null) {
-                          return Image.memory(imageBytes!, fit: BoxFit.cover);
+                        if (widget.imageBytes != null) {
+                          return Image.memory(widget.imageBytes!, fit: BoxFit.cover);
                         }
 
                         return const Center(
@@ -121,7 +203,8 @@ class ValidasiFoto extends StatelessWidget {
                   const SizedBox(width: 32),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      if (_isLoading || widget.imageBytes == null) return;
+                      _uploadFotoAIToServer();
                     },
                     child: Container(
                       width: 56,
@@ -138,11 +221,19 @@ class ValidasiFoto extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.arrow_forward,
-                        color: primaryGreen,
-                        size: 26,
-                      ),
+                      child: _isLoading
+                          ? const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: CircularProgressIndicator(
+                                color: primaryGreen,
+                                strokeWidth: 3,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.arrow_forward,
+                              color: primaryGreen,
+                              size: 26,
+                            ),
                     ),
                   ),
                 ],

@@ -24,7 +24,9 @@ class _FotoAIPageState extends State<FotoAIPage> {
     try {
       final XFile? picked = await _picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 85,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 70,
       );
       if (picked == null) {
         if (mounted) {
