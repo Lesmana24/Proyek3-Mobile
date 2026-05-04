@@ -133,6 +133,64 @@ class _HasilAIPageState extends State<HasilAIPage> {
     );
   }
 
+  Widget _buildProblemsBox(List<String> problems) {
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800),
+              const SizedBox(width: 8),
+              Text(
+                'Masalah & Gejala',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange.shade800,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...problems.map((p) => Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 6, right: 8),
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade800,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        p,
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const primaryGreen = Color(0xFF3E792F);
@@ -141,7 +199,17 @@ class _HasilAIPageState extends State<HasilAIPage> {
     final plantName = data['plant_name'] ?? 'Tidak diketahui';
     final diseaseName = data['disease_name'] ?? 'Tidak diketahui';
     final healthStatus = data['ai_health_status'] ?? 'Unknown';
-    final confidence = data['confidence_score'] ?? '0';
+    double confValue = 0.0;
+    if (data['confidence_score'] != null) {
+      confValue = double.tryParse(data['confidence_score'].toString()) ?? 0.0;
+    }
+    final confidence = confValue.toStringAsFixed(1);
+    
+    List<String> problems = [];
+    if (data['problems_list'] != null && data['problems_list'] is List) {
+      problems = (data['problems_list'] as List).map((e) => e.toString()).toList();
+    }
+
     final careLight = data['care_light'] ?? '-';
     final careWater = data['care_water'] ?? '-';
     final careTemp = data['care_temperature'] ?? '-';
@@ -345,6 +413,8 @@ class _HasilAIPageState extends State<HasilAIPage> {
                     const SizedBox(height: 12),
                     _buildCareItem(Icons.thermostat, Colors.red,
                         'SUHU IDEAL', careTemp.toString()),
+                        
+                    if (!isHealthy && problems.isNotEmpty) _buildProblemsBox(problems),
                   ],
                 ),
               ),
